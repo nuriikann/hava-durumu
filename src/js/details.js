@@ -51,4 +51,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
         detailsContainer.innerHTML = `<p class="text-danger">Şehir bilgisi eksik.</p>`;
     }
+
+    const fetchWeatherForecast = async (city) => {
+        const weatherApiKey = "58fd5ec9d93442b5aa2103353240412"; // API anahtarınız
+        const forecastApiUrl = `https://api.weatherapi.com/v1/forecast.json?key=${weatherApiKey}&q=${encodeURIComponent(city)}&days=7&aqi=no&alerts=no`;
+    
+        try {
+            const response = await fetch(forecastApiUrl);
+            if (!response.ok) throw new Error("Hava tahmini alınamadı.");
+            return await response.json();
+        } catch (error) {
+            console.error("Hava tahmini API hatası:", error);
+            return null;
+        }
+    };
+
+    
+    
 });

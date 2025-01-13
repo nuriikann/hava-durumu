@@ -56,7 +56,8 @@
     text-align: center;
     border: 1px solid green !important;
     background-color: transparent !important;
-    width: 70% !important;
+    width: auto;
+    padding: 10px;
 }
 
 .card h5,p{
@@ -66,7 +67,8 @@
 
 .card-img-top {
     max-height: 250px;
-    object-fit: cover;
+    object-fit: contain;
+    width: 100%;
 }
 
 /* Arama kutusu yazı rengi */
@@ -93,4 +95,9 @@ input[type="search"]::placeholder {
 #suggestions li:hover {
   background-color: #f8f9fa;
   color: black;
+}
+
+#forecastChart {
+  max-width: 100%;
+  height: auto;
 }
