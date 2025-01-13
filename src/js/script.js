@@ -1,3 +1,4 @@
+//şehir görseli
 const fetchCityImage = async (city) => {
     const unsplashAccessKey = "oWzqn68Y0no1fIKyPwSxmNyyP_uLUr27ibKFct7QsYs"; // Buraya Unsplash Access Key'inizi yazın
     const unsplashUrl = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(city)}&client_id=${unsplashAccessKey}&per_page=1`;
@@ -74,26 +75,66 @@ const createWeatherCardAndChart = async (city) => {
     // Tahmin verilerinden ilk günün hava durumu
     const todayForecast = forecastData.forecast.forecastday[0];
     const currentTemp = todayForecast.day.avgtemp_c;
+    const currentWind = todayForecast.day.maxwind_kph || 0;
+    const rainChange = todayForecast.day.daily_chance_of_rain || 0;
     const conditionText = todayForecast.day.condition.text;
     const conditionIcon = todayForecast.day.condition.icon;
+
+    const weatherTranslations = {
+        "Light snow showers": "Hafif kar yağışı",
+        "Clear": "Açık",
+        "Partly cloudy": "Parçalı bulutlu",
+        "Overcast": "Kapalı",
+        "Light rain showers": "Hafif yağmur yağışı",
+        "Heavy rain": "Şiddetli yağmur",
+        "Thunderstorms": "Fırtına",
+        "Cloudy": "Bulutlu",
+        // Diğer hava durumu ifadelerini buraya ekleyebilirsiniz.
+    };
+    
+    const translateCondition = (conditionText) => {
+        return weatherTranslations[conditionText] || conditionText; // Eşleşme yoksa, metni olduğu gibi döndür
+    };
+    
+    
 
     // Şehir resmi al
     const cityImage = await fetchCityImage(city);
 
-    // **Kart oluşturma**
-    const cardContainer = document.querySelector("#weather-card-container");
-    cardContainer.innerHTML = `
-        <div class="card border-info border-3" style="width: 18rem;">
-            <img src="${cityImage || 'https://via.placeholder.com/300'}" class="card-img-top" alt="${city}">
-            <div class="card-body">
-                <h5 class="card-title">${city}</h5>
-                <p class="card-text">
-                    Şu anki Sıcaklık: ${currentTemp}°C<br>
-                    Hava: ${conditionText}
-                </p>
-            </div>
+    let borderColor = "";
+
+if (currentTemp < 0) {
+    borderColor = "border-primary"; // Lacivert
+} else if (currentTemp >= 0 && currentTemp < 10) {
+    borderColor = "border-info"; // Mavi
+} else if (currentTemp >= 10 && currentTemp < 30) {
+    borderColor = "border-success"; // Yeşil
+} else {
+    borderColor = "border-danger"; // Kırmızı
+}
+
+const translatedConditionText = translateCondition(conditionText);
+
+// Kart oluşturma
+const cardContainer = document.querySelector("#weather-card-container");
+cardContainer.innerHTML = `
+    <div class="card d-flex justify-content-center ${borderColor} border-3" 
+        style="width: 18rem; text-align: center; align-items: center;">
+        <img src="${cityImage || 'https://via.placeholder.com/300'}" class="card-img-top" alt="${city}">
+        <img src="${conditionIcon}" class="d-flex justify-content-center" style="width: 3rem;">
+        <div class="card-body">
+            <h5 class="card-title">${city}</h5>
+            <p class="card-text">
+                Şu anki Sıcaklık: ${currentTemp}°C<br>
+                Hava: ${translatedConditionText}<br>
+                Rüzgar: ${currentWind}km/h<br>
+                Yağmur Olasılığı (%): ${rainChange}%
+            </p>
         </div>
-    `;
+    </div>
+`;
+
+console.log(forecastData.forecast.forecastday);
 
     // **Grafik oluşturma**
     const days = forecastData.forecast.forecastday.map((day) =>
@@ -101,6 +142,8 @@ const createWeatherCardAndChart = async (city) => {
     );
     const temperatures = forecastData.forecast.forecastday.map((day) => day.day.avgtemp_c);
     const humidity = forecastData.forecast.forecastday.map((day) => day.day.avghumidity);
+    const wind = forecastData.forecast.forecastday.map((day) => day.day.maxwind_kph);
+    const rainChange2 = forecastData.forecast.forecastday.map((day) => day.day.daily_chance_of_rain);
 
     const ctx = document.getElementById("forecastChart").getContext("2d");
 
@@ -123,6 +166,22 @@ const createWeatherCardAndChart = async (city) => {
                     data: humidity,
                     borderColor: "rgba(255, 99, 132, 1)",
                     backgroundColor: "rgba(255, 99, 132, 0.2)",
+                    borderWidth: 2,
+                    tension: 0.3,
+                },
+                {
+                    label: "Rüzgar Hızı (km/h)",
+                    data: wind,
+                    borderColor: "rgb(75, 120, 95)",
+                    backgroundColor: "rgb(75, 120, 95, 0.3)",
+                    borderWidth: 2,
+                    tension: 0.3,
+                },
+                {
+                    label: "Yağmur Olasılığı (%)",
+                    data: rainChange2,
+                    borderColor: "rgba(75, 105, 120, 1)",
+                    backgroundColor: "rgba(104, 144, 164, 0.37)",
                     borderWidth: 2,
                     tension: 0.3,
                 },

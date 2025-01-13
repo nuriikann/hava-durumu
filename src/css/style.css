@@ -54,7 +54,7 @@
 .card {
     margin: auto;
     text-align: center;
-    border: 1px solid green !important;
+    border: 1px solid green;
     background-color: transparent !important;
     width: auto;
     padding: 10px;
@@ -98,6 +98,6 @@ input[type="search"]::placeholder {
 }
 
 #forecastChart {
-  max-width: 100%;
-  height: auto;
+  max-height: 400px; /* Grafiğin maksimum yüksekliği */
+  width: 100%;
 }
